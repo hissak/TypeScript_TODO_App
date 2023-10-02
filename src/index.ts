@@ -16,15 +16,34 @@ type Task = {
   created_at: Date;
 }
 
+const saveTasks = (): void => {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+const loadTasks = (): Task[] => {
+  const tasks = localStorage.getItem('tasks');
+  if(!tasks) return [];
+  return JSON.parse(tasks);
+}
+
 const addListItem = (task: Task): void => {
   const item = document.createElement('li');
   const label = document.createElement('label');
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
+  checkbox.checked = task.completed;
+  checkbox.addEventListener('change', (event) => {
+    task.completed = checkbox.checked;
+    console.log(tasks);
+    saveTasks();
+  })
   label.append(checkbox, task.title);
   item.append(label);
   list?.append(item);
 }
+
+const tasks: Task[] = loadTasks();
+tasks.forEach(addListItem);
+
 
 
 form?.addEventListener('submit', (event) => {
@@ -36,5 +55,8 @@ form?.addEventListener('submit', (event) => {
     completed: false,
     created_at: new Date()
   }
+  tasks.push(newTask);
+  saveTasks();
   addListItem(newTask);
+  input.value = '';
 })
